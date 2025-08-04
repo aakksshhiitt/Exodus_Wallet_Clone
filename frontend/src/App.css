@@ -1,0 +1,214 @@
+
+body {
+   background: url('../public/4.jpg') no-repeat fixed;
+    background-position: calc(100% + 200px) center; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  background-size: cover;
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px;
+  
+}
+
+/* App Container */
+.app-container {
+  margin-top: 5px;
+  margin-left: -700px;
+  background: rgba(6, 6, 6, 0.4); /* semi-transparent */
+  backdrop-filter: blur(12px);   /* blur the background behind */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 30px 40px;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.uniswap-header {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Tab Selector */
+.tab-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.tab-selector button {
+  padding: 10px 20px;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.tab-selector button.active {
+  background-color: #3f51b5;
+  color: white;
+  border-color: #3f51b5;
+}
+
+/* Input Group */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fafafa;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  font-size: 16px;
+  background: transparent;
+  outline: none;
+}
+
+.token-btn {
+  background: #eee;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  max-width: 120px;
+}
+
+.dropdown-menu div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-menu div:hover {
+  background-color: #f1f1f1;
+}
+
+/* Arrow */
+.arrow {
+  font-size: 20px;
+  text-align: center;
+  margin: 10px 0;
+}
+
+/* Buttons */
+.connect-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.connect-btn2 {
+  width: 48%;
+  padding: 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.connect-btn3 {
+  margin-top: -10px;
+  margin-left: -25px;
+  width: 30%;
+  padding: 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.connect-btn:hover {
+  background-color: #32449d;
+}
+
+/* Tab Panels (Deposit, Stake) */
+.tab-panel {
+  padding: 10px;
+}
+
+.tab-panel h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.tab-panel input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.tab-panel .btn1 {
+  width: 50%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.tab-panel .btn2 {
+  width: 30%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.half{
+  width: 50px;
+}
