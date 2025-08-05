@@ -10,11 +10,23 @@ import "./App.css";
 
 let provider, signer, AContractProvider, BContractProvider, CContractProvider, walletContractProvider, AContractSigner,BContractSigner,CContractSigner, walletContractSigner;
 
+
+
+
+
+  const tokens = [
+    { symbol: 'ETH', name: 'ETH'},
+    { symbol: 'TA', name: 'TokenA'},
+    { symbol: 'TB', name: 'TokenB'},
+    { symbol: 'RT', name: 'Reward Token'},
+  ];
+
+ 
 const tokenAddresses={
 	ETH: "0x0000000000000000000000000000000000000000",
-	TOKEN_A : "0x1781D77A7F74a2d0B55D37995CE3a4293203D3bc",
-	TOKEN_B : "0xB59505810840F523FF0da2BBc71581F84Fc1f2B1",
-	REWARD_TOKEN : "0xb884F05Ca9c0b1d42FA7c446CF9f76be2bc4650E"
+	TA : "0x1781D77A7F74a2d0B55D37995CE3a4293203D3bc",
+	TB : "0xB59505810840F523FF0da2BBc71581F84Fc1f2B1",
+	RT : "0xb884F05Ca9c0b1d42FA7c446CF9f76be2bc4650E"
 }
 const walletContract = "0xFED17367D4465A41ce4bA4b73A7903F1f35816ed";
 
@@ -1496,37 +1508,35 @@ const quoterABI=[
 function App() {
 
   const [formData,setFormData]=useState({
-    depositTokenAddress:"",
-    withdrawTokenAddress:"",
-    transferTokenAddress:"",
-    availableTokenAddress:"",
-	transferReceiverAddress:"",
     depositAmount:"",
     withdrawAmount:"",
     transferAmount:"",
 	stakeAmount:"",
 	swapAmount:"",
-	swappedAmount:""
+	swappedAmount:"",
+    receiveAmount:""
   })
   const [tokenAddress,setTokenAddress]=useState("");
   const [amount, setAmount] = useState('');
-  const [status, setStatus] = useState('');
-  const [stakeStatus, setStakeStatus] = useState('');
 
-  
-  const [activeTab, setActiveTab] = useState('swap');
-  const [fromToken, setFromToken] = useState('Select token');
-  const [toToken, setToToken] = useState('');
-  const [fromDropdownOpen, setFromDropdownOpen] = useState(false);
-  const [toDropdownOpen, setToDropdownOpen] = useState(false);
-  const [tokenCheckDropdownOpen, setTokenCheckDropdownOpen] = useState(false);
-
-  const tokenOptions = ['TOKEN_A', 'TOKEN_B', 'REWARD_TOKEN'];
-  const tokenOptions2 = ['ETH', 'TOKEN_A', 'TOKEN_B', 'REWARD_TOKEN'];
+   const [activeTab, setActiveTab] = useState('Swap');
+  const [payToken, setPayToken] = useState('Select');
+  const [receiveToken, setReceiveToken] = useState('Select');
+  const [depositToken, setDepositToken] = useState('Select');
+  const [withdrawToken, setWithdrawToken] = useState('Select');
+  const [stakeToken, setStakeToken] = useState('Select');
+  const [payDropdownOpen, setPayDropdownOpen] = useState(false);
+  const [receiveDropdownOpen, setReceiveDropdownOpen] = useState(false);
+  const [depositDropdownOpen, setdepositDropdownOpen] = useState(false);
+  const [withdrawDropdownOpen, setwithdrawDropdownOpen] = useState(false);
+  const [stakeDropdownOpen, setStakeDropdownOpen] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [receiveAmount, setReceiveAmount] = useState('');
+  const [info, setinfo] = useState('');
 
 
    useEffect(()=>{
-	
+
     const initializer=async()=>{
           // check if metamask is installed or not 
       if(await !window.ethereum){
@@ -1542,19 +1552,17 @@ function App() {
     	if(accounts.length===0){
           await window.ethereum.request({method:'eth_requestAccounts'});
         }
-
         provider= await new ethers.BrowserProvider(window.ethereum);   // getting the provider
         signer= await provider.getSigner();                      // getting the signer
-        AContractProvider= await new ethers.Contract(tokenAddresses.TOKEN_A,A_ABI, provider);
-        BContractProvider= await new ethers.Contract(tokenAddresses.TOKEN_B,B_ABI, provider);
-        CContractProvider= await new ethers.Contract(tokenAddresses.REWARD_TOKEN,C_ABI, provider);
+        AContractProvider= await new ethers.Contract(tokenAddresses.TA,A_ABI, provider);   
+        BContractProvider= await new ethers.Contract(tokenAddresses.TB,B_ABI, provider);  
+        CContractProvider= await new ethers.Contract(tokenAddresses.RT,C_ABI, provider);   
         walletContractProvider= await new ethers.Contract(walletContract,WALLET_ABI, provider);  // instance of smart contract to read from the chain
-                            // getting the signer
-        AContractSigner= await new ethers.Contract(tokenAddresses.TOKEN_A,A_ABI, signer);
-        BContractSigner= await new ethers.Contract(tokenAddresses.TOKEN_B,B_ABI, signer);
-        CContractSigner= await new ethers.Contract(tokenAddresses.REWARD_TOKEN,C_ABI, signer);
+                           // getting the signer
+        AContractSigner= await new ethers.Contract(tokenAddresses.TA,A_ABI, signer);
+        BContractSigner= await new ethers.Contract(tokenAddresses.TB,B_ABI, signer);
+        CContractSigner= await new ethers.Contract(tokenAddresses.RT,C_ABI, signer);
         walletContractSigner= await new ethers.Contract(walletContract,WALLET_ABI, signer);     // instance of the smart contract to make changes to the blockchain state
-
       }
       catch(err){
         if(err.code===-32002){
@@ -1568,11 +1576,44 @@ function App() {
     initializer();
   })
 
+   const handleSwapTokens = () => {
+    const tempToken = payToken;
+    const tempAmount = payAmount;
+    setPayToken(receiveToken);
+    setReceiveToken(tempToken);
+    setPayAmount(receiveAmount);
+    setReceiveAmount(tempAmount);
+  };
+
+  const balance1= async(e)=>{
+		const userAddress = await signer.getAddress();
+    if(e=="TA"){
+		  const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, tokenAddresses["TA"]);
+		  setinfo("Your Token A balance: " +Math.floor(formatUnits(tx, 18) * 1e5) / 1e5);
+    }
+    else if(e=="TB"){
+		  const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, tokenAddresses["TB"]);
+		  setinfo("Your Token B balance: " +Math.floor(formatUnits(tx, 18) * 1e5) / 1e5);
+    }
+    else if(e=="RT"){
+		  const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, tokenAddresses["RT"]);
+		  setinfo("Your Reward Token balance: " +Math.floor(formatUnits(tx, 18) * 1e5) / 1e5);
+    }
+    else if(e=="ETH"){
+		  const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, tokenAddresses["ETH"]);
+		  setinfo("Your ETH balance: " +Math.floor(formatUnits(tx, 18) * 1e5) / 1e5);
+	}
+  }
+
    const getOutputTokens=async()=>{
    
 	try {
 
-		if(fromToken=="Select token" || toToken=="Select token" || formData.swapAmount==""){
+    if(payToken=="ETH" || receiveToken=="ETH"){
+			document.querySelector(".details").innerText = "ETH is only for staking for now";
+			return;
+		}
+		if(payToken=="Select" || receiveToken=="Select" || formData.swapAmount==""){
 			document.querySelector(".details").innerText = "Please select the token and add the amount to swap";
 			return;
 		}
@@ -1580,8 +1621,8 @@ function App() {
     	const quoterAddress = "0xEd1f6473345F45b75F8179591dd5bA1888cf2FB3"; // Uniswap QuoterV2
     	const quoter = new ethers.Contract(quoterAddress, quoterABI, signer);
     	const quoteParams = {
-      		tokenIn: tokenAddresses[fromToken],
-      		tokenOut: tokenAddresses[toToken],
+      		tokenIn: tokenAddresses[payToken],
+      		tokenOut: tokenAddresses[receiveToken],
       		amountIn: parseUnits(String(formData.swapAmount),18),
       		fee: 3000,
       		sqrtPriceLimitX96: 0
@@ -1589,12 +1630,13 @@ function App() {
 		// console.log(quoteParams);
 		const quote = await quoter.quoteExactInputSingle.staticCall(quoteParams);
 		// console.log(String(quote.amountOut));
-    	setFormData({...formData, swappedAmount:(formatUnits(quote.amountOut))});
+    	setFormData({...formData, receiveAmount:(formatUnits(quote.amountOut))});
+
 		return;
     } 
 	catch (err) {
       	console.error(err);
-      	setStatus("Swap Error: " + (err.reason || err.message));
+      	setinfo("Swap Error: " + (err.reason || err.message));
     }
   }
 
@@ -1603,10 +1645,10 @@ function App() {
 		const userAddress = await signer.getAddress();
 		const amount= await CContractSigner.balanceOf(userAddress);
 		const tx= await CContractSigner.approve(walletContract,amount);
-		setStatus("Activating...");
+		setinfo("Activating...");
 		await tx.wait();
 		await walletContractSigner.activateRewards();
-		setStatus("Activated...");
+		setinfo("Activated...");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1623,14 +1665,20 @@ function App() {
   }
 
   const swap=async()=>{
+
     try {
-		if(fromToken=="Select token" || toToken=="Select token" || formData.swapAmount==""){
+
+    if(payToken=="ETH" || receiveToken=="ETH"){
+			document.querySelector(".details").innerText = "ETH is only for staking for now";
+			return;
+		}
+		if(payToken=="Select" || receiveToken=="Select" || formData.swapAmount==""){
 			document.querySelector(".details").innerText = "Please refresh and select the token and add the amount to swap";
 			return;
 		}
 
-		const inputToken=tokenAddresses[fromToken];
-		const outputToken=tokenAddresses[toToken];
+		const inputToken=tokenAddresses[payToken];
+		const outputToken=tokenAddresses[receiveToken];
 		const amount=parseUnits(String(formData.swapAmount),18);
 		
 		// console.log(amount);
@@ -1638,7 +1686,7 @@ function App() {
 		document.querySelector(".details").innerText = "Swapping, please wait";
 		await tx.wait(); 
 		document.querySelector(".details").innerText = "Swap Completed, check your balance in deposit section";
-		// setStatus("available funds: " + tx);
+		// setinfo("available funds: " + tx);
 		// formData.availableTokenAddress="";
     } 
     catch (err) {
@@ -1657,36 +1705,29 @@ function App() {
 
   const deposit=async()=>{
     try {
-
-		if(formData.depositTokenAddress=="" || formData.depositAmount==""){
+		if(depositToken=="Select" || formData.depositAmount==""){
 			document.querySelector(".details").innerText = "Please refresh and enter the details";
 			return;
 		}
-		if(!(formData.depositTokenAddress==tokenAddresses["TOKEN_A"] || formData.depositTokenAddress==tokenAddresses["TOKEN_B"] || formData.depositTokenAddress==tokenAddresses["REWARD_TOKEN"] || formData.depositTokenAddress==tokenAddresses["ETH"])){
-			document.querySelector(".details").innerText = "This token does not exist, enter token address of the selected tokens";
-			return;
-		}
-		if(formData.depositTokenAddress=="0x0000000000000000000000000000000000000000"){
+		if(tokenAddresses[depositToken]=="0x0000000000000000000000000000000000000000"){
 			const amount=parseUnits(String(formData.depositAmount),18);
-			const tx=await walletContractSigner.depositTokens(formData.depositTokenAddress,amount,{value:amount});
-			setStatus("Deposit Processing");
+			const tx=await walletContractSigner.depositTokens(tokenAddresses[depositToken],amount,{value:amount});
+			setinfo("Deposit Processing");
 			await tx.wait();
-			setStatus("Deposited, check balance");
-			formData.depositTokenAddress="";
+			setinfo("Deposited, check balance");
 			formData.depositAmount="";
 			return;
 		}
 
 		const amount=parseUnits(String(formData.depositAmount),18);
 		const tx= await AContractSigner.approve(walletContract, amount);
-		setStatus("Approving...");
+		setinfo("Approving...");
 		await tx.wait();
-		setStatus("Approved...");
-		const tx2=await walletContractSigner.depositTokens(formData.depositTokenAddress,amount);
-		setStatus("Deposit Processing");
+		setinfo("Approved...");
+		const tx2=await walletContractSigner.depositTokens(tokenAddresses[depositToken],amount);
+		setinfo("Deposit Processing");
 		await tx2.wait();
-		setStatus("Deposited, check balance");
-		formData.depositTokenAddress="";
+		setinfo("Deposited, check balance");
 		formData.depositAmount="";
     } 
     catch (err) {
@@ -1705,53 +1746,17 @@ function App() {
 
   const withdraw=async()=>{
     try {
-		if(formData.withdrawTokenAddress=="" || formData.withdrawAmount==""){
+		if(tokenAddresses[depositToken]=="" || formData.depositAmount==""){
 			document.querySelector(".details").innerText = "Please refresh and enter the details";
 			return;
 		}
-		if(!(formData.withdrawTokenAddress==tokenAddresses["TOKEN_A"] || formData.withdrawTokenAddress==tokenAddresses["TOKEN_B"] || formData.withdrawTokenAddress==tokenAddresses["REWARD_TOKEN"] || formData.withdrawTokenAddress==tokenAddresses["ETH"])){
-			document.querySelector(".details").innerText = "This token does not exist, enter token address of the selected tokens";
-			return;
-		}
 
-		const amount=parseUnits(String(formData.withdrawAmount),18);
-		const tx=await walletContractSigner.withdrawFunds(formData.withdrawTokenAddress,amount);
-		setStatus("Processing");
+		const amount=parseUnits(String(formData.depositAmount),18);
+		const tx=await walletContractSigner.withdrawFunds(tokenAddresses[depositToken],amount);
+		setinfo("Processing");
 		await tx.wait();
-		setStatus("Withdrawl Successful...");
-		formData.withdrawTokenAddress="";
-		formData.withdrawAmount="";
-    } 
-    catch (err) {
-      let errorMessage = "An unexpected error occurred.";
-
-  			if (err.code === "CALL_EXCEPTION" && err.reason) {
-    			errorMessage = err.reason;
-  			} else if (err.info && err.info.error && err.info.error.message) {
-    			errorMessage = err.info.error.message;
-  			} else if (err.message) {
-    			errorMessage = err.message;
-  			}
-  			document.querySelector(".details").innerText = errorMessage;
-    }
-  }
-
-  const availableFunds=async()=>{
-    try {
-		if(formData.availableTokenAddress==""){
-			document.querySelector(".details").innerText = "Please refresh and enter the token address";
-			return;
-		}
-		if(!(formData.availableTokenAddress==tokenAddresses["TOKEN_A"] || formData.availableTokenAddress==tokenAddresses["TOKEN_B"] || formData.availableTokenAddress==tokenAddresses["REWARD_TOKEN"] || formData.availableTokenAddress==tokenAddresses["ETH"])){
-			document.querySelector(".details").innerText = "This token does not exist, enter token address of the selected tokens";
-			return;
-		}
-		const userAddress = await signer.getAddress();
-		const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, formData.availableTokenAddress);
-		const amount = formatEther(tx);
-		// console.log(tx);
-		setStatus("available funds: " + amount);
-		formData.availableTokenAddress="";
+		setinfo("Withdrawl Successful...");
+		formData.depositAmount="";
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1769,20 +1774,20 @@ function App() {
 
   const transfer=async()=>{
     try {
-		if(formData.transferTokenAddress=="" || formData.transferAmount==""){
+    if(withdrawToken=="ETH"){
+			document.querySelector(".details").innerText = "ETH is only for staking for now";
+			return;
+		}
+		if(tokenAddresses[withdrawToken]=="select" || formData.withdrawAmount==""){
 			document.querySelector(".details").innerText = "Please refresh and enter the details";
 			return;
 		}
-		if(!(formData.transferTokenAddress==tokenAddresses["TOKEN_A"] || formData.transferTokenAddress==tokenAddresses["TOKEN_B"] || formData.transferTokenAddress==tokenAddresses["REWARD_TOKEN"] || formData.transferTokenAddress==tokenAddresses["ETH"])){
-			document.querySelector(".details").innerText = "This token does not exist, enter token address of the selected tokens";
-			return;
-		}
 
-		const amount=parseUnits(String(formData.transferAmount),18);
-		const tx=await walletContractSigner.transferTokens(formData.transferTokenAddress, formData.transferReceiverAddress, amount);
-		setStatus("Processing");
+		const amount=parseUnits(String(formData.withdrawAmount),18);
+		const tx=await walletContractSigner.transferTokens(tokenAddresses[withdrawToken], formData.transferReceiverAddress, amount);
+		setinfo("Processing");
 		await tx.wait();
-		setStatus("Transfer Completed, check balance");
+		setinfo("Transfer Completed, check balance");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1808,9 +1813,9 @@ function App() {
 		const amount=parseUnits(String(formData.stakeAmount),18);
 		// console.log(amount);
 		const tx=await walletContractSigner.stakeFunds(amount);
-		setStakeStatus("Processing");
+		setinfo("Processing");
 		await tx.wait();
-		setStakeStatus("Funds Staked, check staking balance");
+		setinfo("Funds Staked, check staking balance");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1832,7 +1837,7 @@ function App() {
 		// console.log(walletContractSigner);
 		const tx=await walletContractSigner.showMyStakedAmount();
 		const amount = formatEther(tx);
-		setStakeStatus(amount);
+		setinfo(amount);
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1851,9 +1856,9 @@ function App() {
   const unStake=async()=>{
     try {
 		const tx=await walletContractSigner.unstakeTokens();
-		setStakeStatus("Processing");
+		setinfo("Processing");
 		await tx.wait();
-		setStakeStatus("Tokens Unstaked");
+		setinfo("Tokens Unstaked");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1873,7 +1878,7 @@ function App() {
     try {
 		const tx=await walletContractSigner.checkRewardEarnedTillNow();
 		const decimalValue = formatUnits(tx, 36);
-		setStakeStatus(decimalValue + "Reward Tokens");
+		setinfo(decimalValue + "  Reward Tokens");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1893,9 +1898,9 @@ function App() {
     try {
 
 		const tx1=await walletContractSigner.claimStakingRewards();
-		setStakeStatus("Claiming");
+		setinfo("Claiming");
 		await tx1.wait();
-		setStakeStatus("Claimed");
+		setinfo("Claimed");
     } 
     catch (err) {
       let errorMessage = "An unexpected error occurred.";
@@ -1914,165 +1919,202 @@ function App() {
 
 
 
+// // use your wallet to sign transactions.
 
-  return (
-	
-        <div className="app-container">
-		<button className="connect-btn3" onClick={activate}>Activate</button>
-      <div className="uniswap-header">Wallet</div>
-      <div className="tab-selector">
-        <button className={activeTab === 'swap' ? 'active' : ''} onClick={() => setActiveTab('swap')}>
-          Swap
-        </button>
-        <button className={activeTab === 'deposit' ? 'active' : ''} onClick={() => setActiveTab('deposit')}>
-          Deposit
-        </button>
-        <button className={activeTab === 'stake' ? 'active' : ''} onClick={() => setActiveTab('stake')}>
-          Stake
-        </button>
+// // const PRIVATE_KEY = "0xYOUR_PRIVATE_KEY_HERE";
+// // const provider = new ethers.providers.JsonRpcProvider("https://sepolia.infura.io/v3/YOUR_INFURA_KEY");
+// // const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+// // const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+
+
+ 
+
+  const renderTokenDropdown = (isOpen, setIsOpen, selectedToken, onSelect, type) => (
+    <div className="token-selector" onClick={() => setIsOpen(!isOpen)}>
+      <div className="token-display">
+        <span className="token-symbol">{selectedToken}</span>
+        <span className="dropdown-arrow">▼</span>
+      </div>
+      
+      {isOpen && (
+        <div className="dropdown-menu">
+          {tokens.map((token) => (
+            <div 
+              key={token.symbol}
+              className="dropdown-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(token.symbol);
+                setIsOpen(false);
+                balance1(token.symbol);
+              }}
+            >
+              <div className={`token-icon ${token.symbol.toLowerCase()}`}>
+                {token.symbol === 'ETH' && '⟠'}
+                {token.symbol === 'USDT' && '₮'}
+                {token.symbol === 'BTC' && '₿'}
+                {token.symbol === 'USDC' && '$'}
+                {token.symbol === 'DAI' && '◈'}
+              </div>
+              <div className="token-info">
+                <span className="token-name">{token.symbol}</span>
+                <span className="token-balance">{token.balance}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSwapInterface = () => (
+    <div className="swap-container">
+      <div className="swap-section">
+        <div className="section-header">
+          <span className="section-label">You Pay</span>
+        </div>
+        <div className="input-row">
+          {renderTokenDropdown(payDropdownOpen, setPayDropdownOpen, payToken, setPayToken, 'pay')}
+          <div className="amount-section">
+          <input type="text" className='amount-input' placeholder="Amount " value={formData.swapAmount} onChange={(e)=>{setFormData({...formData, swapAmount:e.target.value }) }}/>
+
+             
+          </div>
+        </div>
+      </div>
+      <div className="swap-section">
+        <div className="section-header">
+          <span className="section-label">Receive</span>
+        </div>
+        <div className="input-row">
+          {renderTokenDropdown(receiveDropdownOpen, setReceiveDropdownOpen, receiveToken, setReceiveToken, 'receive')}
+          <div className="amount-section">
+          <input type="text" className='amount-input' placeholder="You receive" value={formData.receiveAmount} onChange={(e)=>setFormData({...formData, receiveAmount:receiveAmount})}/>
+
+          </div>
+        </div>
       </div>
 
-      {activeTab === 'swap' && (
-        <div className="swap-panel">
-          <div className="input-group">
-            <label>From</label>
-            <div className="input-box">
-              <input type="number" placeholder="0.0" value={formData.swapAmount} onChange={(e)=>{setFormData({...formData, swapAmount:e.target.value});}}/>
-              <div className="dropdown">
-                <button className="token-btn" onClick={() => setFromDropdownOpen(!fromDropdownOpen)}>
-                  {fromToken} ⏷
-                </button>
-                {fromDropdownOpen && (
-                  <div className="dropdown-menu">
-                    {tokenOptions.map((token) => (
-                      <div
-                        key={token}
-                        onClick={() => {
-                          setFromToken(token);
-                          setFromDropdownOpen(false);
-                        }}
-                      >
-                        {token}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="arrow"><button className="connect-btn2" onClick={getOutputTokens}>Check Output ↓</button></div>
-
-          <div className="input-group">
-            <label>To</label>
-            <div className="input-box">
-              <input type="number" placeholder="0.0" value={formData.swappedAmount} onChange={(e)=>{setFormData({...formData, swappedAmount:e.target.value})}} />
-              <div className="dropdown">
-                <button className="token-btn" onClick={() => setToDropdownOpen(!toDropdownOpen)}>
-                  {toToken || 'Select a token'} ⏷
-                </button>
-                {toDropdownOpen && (
-                  <div className="dropdown-menu">
-                    {tokenOptions.map((token) => (
-                      <div
-                        key={token}
-                        onClick={() => {
-                          setToToken(token);
-                          setToDropdownOpen(false);
-                        }}
-                      >
-                        {token}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <button className="connect-btn" onClick={swap}>Swap</button>
-
-		  <br></br><br></br><br></br>
-		  <h4>Check Registered Token Address</h4>
-		  <div className="input-group">
-                <button className="token-btn" onClick={() => setTokenCheckDropdownOpen(!tokenCheckDropdownOpen)}>
-                  {fromToken} ⏷
-                </button>
-                {tokenCheckDropdownOpen  && (
-                  <div className="dropdown-menu">
-                    {tokenOptions2.map((token) => (
-                      <div
-                        key={token}
-                        onClick={() => {
-							document.querySelector(".details").innerText = tokenAddresses[token];
-                        }}
-                      >
-                        {token}
-                      </div>
-                    ))}
-                  </div>
-                )}
-            </div>
-
-		  <p className='details'></p>
-
-        </div>
-      )}
-
-
-      {activeTab === 'deposit' && (
-        <div className="tab-panel">
-          <h3>Deposit Funds</h3>
-          <input type="text" className='btn1' placeholder="Enter token Address" value={formData.depositTokenAddress} onChange={(e)=>setFormData({...formData, depositTokenAddress:e.target.value})} />
-          <input type="Number" className='btn1' placeholder="Enter token amount" value={formData.depositAmount} onChange={(e)=>setFormData({...formData, depositAmount:e.target.value })}/>
-          <button className="connect-btn" onClick={deposit}>Deposit</button>
-          <h3>Withdraw</h3>
-          <input type="text" className='btn1' placeholder="Enter token Address" value={formData.withdrawTokenAddress} onChange={(e)=>setFormData({...formData, withdrawTokenAddress:e.target.value})} />
-          <input type="number" className='btn1' placeholder="Enter withdraw amount" value={formData.withdrawAmount} onChange={(e)=>setFormData({...formData, withdrawAmount:e.target.value})} />
-          <button className="connect-btn" onClick={withdraw}>Withdraw</button>
-          <h3>Transfer</h3>
-          <input type="text" className='btn2' placeholder="Enter receiver's Address" value={formData.transferReceiverAddress} onChange={(e)=>setFormData({...formData, transferReceiverAddress:e.target.value})}/>
-          <input type="text" className='btn2' placeholder="Enter token Address" value={formData.transferTokenAddress} onChange={(e)=>setFormData({...formData, transferTokenAddress:e.target.value})}/>
-          <input type="number" className='btn2' placeholder="Enter withdraw amount" value={formData.transferAmount} onChange={(e)=>setFormData({...formData, transferAmount:e.target.value})} />
-          <button className="connect-btn" onClick={transfer}>Transfer</button>
-          <h3>My available Funds</h3>
-          <input type="text" className='btn1' placeholder="Enter token Address" value={formData.availableTokenAddress} onChange={(e)=>setFormData({...formData, availableTokenAddress:e.target.value})} />
-          <button className="connect-btn" onClick={availableFunds}>Get funds</button>
-		  <p className='details'>{status}</p>
-        </div>
-      )}
-
-      {activeTab === 'stake' && (
-        <div className="tab-panel">
-          <h3>Stake Funds (ETH)</h3>
-          <input type="Number" className='half'  placeholder="Enter token amount" value={formData.stakeAmount} onChange={(e)=>setFormData({...formData,stakeAmount:e.target.value})}/>
-          <button className="connect-btn2" onClick={stake}>Stake</button>&nbsp;<button className="connect-btn2" onClick={checkStakedFunds}>Check Staked Amount</button><br></br><br></br>
-          <h3>Unstake Funds</h3>
-          <button className="connect-btn" onClick={unStake}>Withdraw</button><br></br><br></br>
-          <h3>Check Rewards Earned Till Now</h3>
-          <button className="connect-btn" onClick={checkRewards}>Fetch</button><br></br><br></br>
-          <h3>Claim Rewards</h3>
-          <button className="connect-btn" onClick={claim}>Claim</button><br></br><br></br>
-          <p className='details'>{stakeStatus}</p>
-		  <p>Funds will be staked for 1 year to claim the rewards, before that you can only unstake the staking position</p>
-		  
-        </div>
-      )}
-
+      <div>
+        <button className="main-stake-button" onClick={getOutputTokens}>Check</button>&nbsp;
+        <button className="main-stake-button" onClick={swap}>Swap</button>&nbsp;
+      </div>  
     </div>
-     
-
     
   );
-}
+
+  const renderDepositInterface = () => (
+    <div className="deposit-container">
+      <div className="deposit-section">
+        <div className="section-header">
+        </div>
+        <div className="section-header">
+          <span className="section-label">Select Token</span>
+        </div>
+        <div className="input-row">
+          {renderTokenDropdown(depositDropdownOpen, setdepositDropdownOpen, depositToken, setDepositToken, 'deposit')}
+          <div className="amount-section">
+          <input type="text" className='amount-input' placeholder="Amount " value={formData.depositAmount} onChange={(e)=>setFormData({...formData, depositAmount:e.target.value })}/>
+          </div>
+        </div>
+        <button className="main-stake-button" onClick={deposit}>Deposit</button>&nbsp;&nbsp;&nbsp;
+        <button className="main-stake-button" onClick={withdraw}>Withdraw</button>
+      </div>
+      <div className="deposit-section">
+        <div className="section-header">
+        </div>
+         <div className="section-header">
+          <span className="section-label">Select Token</span>
+        </div>
+        <div className="input-row">
+          {renderTokenDropdown(withdrawDropdownOpen, setwithdrawDropdownOpen, withdrawToken, setWithdrawToken, 'deposit')}
+          <div className="amount-section">
+          <input type="text" className='amount-input2' placeholder="Amount " value={formData.withdrawAmount} onChange={(e)=>setFormData({...formData, withdrawAmount:e.target.value })}/><br></br><br></br>
+          <input type="text" className='amount-input2' placeholder="receiver " value={formData.transferReceiverAddress} onChange={(e)=>setFormData({...formData, transferReceiverAddress:e.target.value })}/>
+          </div>
+        </div>
+        <button className="main-swap-button" onClick={transfer}>Transfer</button>
+      </div>
+    </div>
+  );
+
+  const renderStakeInterface = () => (
+    <div className="stake-container">
+      <div className="stake-section">
+        <div className="input-row">
+          <button className="main-stake-button" onClick={stake}>Stake(ETH)</button>
+          <div className="amount-section">
+          <input type="Number" className='amount-input1'  placeholder="  amount" value={formData.stakeAmount} onChange={(e)=>setFormData({...formData,stakeAmount:e.target.value})}/>
+          </div>
+        </div>
+      </div>
+      <div className="stake-section">
+          
+          &nbsp;&nbsp;<button className="main-stake-button" onClick={checkStakedFunds}> Staked Amount</button>&nbsp;
+          <button className="main-stake-button" onClick={checkRewards}>Check Rewards</button>&nbsp;
+          <button className="main-swap-button" onClick={unStake}>Unstake(ETH)</button>&nbsp;
+          
+      </div>
+      <button className="main-claim-button" onClick={claim}>Claim Rewards</button>
+      <br></br><br></br>
+    </div>
+  );
+
+  return (
+    <div className="app-container">
+      <style>{`
+        
+      `}</style>
+      
+      <div className="header">
+        <div className="logo">Wallet</div>
+        <div className="user-section">
+          <div className="notification-icon">🔔</div>
+          <div className="user-info">
+            <span>Connected</span>
+            <div style={{width: '20px', height: '20px', borderRadius: '50%', background: '#4ade80'}}></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="main-interface">
+        <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
+          <button 
+            className={`interface-tab ${activeTab === 'Swap' ? 'active' : ''}`}
+            onClick={() => setActiveTab('Swap')}
+            style={{flex: 1}}
+          >
+            Swap
+          </button>
+          <button 
+            className={`interface-tab ${activeTab === 'Deposit' ? 'active' : ''}`}
+            onClick={() => setActiveTab('Deposit')}
+            style={{flex: 1}}
+          >
+            Deposit
+          </button>
+          <button 
+            className={`interface-tab ${activeTab === 'Stake' ? 'active' : ''}`}
+            onClick={() => setActiveTab('Stake')}
+            style={{flex: 1}}
+          >
+            Stake
+          </button>
+        </div>
+
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '20px'}}>
+        </div>
+
+        {activeTab === 'Swap' && renderSwapInterface()}
+        {activeTab === 'Deposit' && renderDepositInterface()}
+        {activeTab === 'Stake' && renderStakeInterface()}
+      </div>
+      <br></br>
+      <div className="balance-info">
+          <p className='details'>{info}</p>
+      </div>
+    </div>
+  );
+};
 
 export default App;
-
-
-
-
-// use your wallet to sign transactions.
-
-// const PRIVATE_KEY = "0xYOUR_PRIVATE_KEY_HERE";
-// const provider = new ethers.providers.JsonRpcProvider("https://sepolia.infura.io/v3/YOUR_INFURA_KEY");
-// const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-// const contract = new ethers.Contract(contractAddress, contractABI, wallet);
