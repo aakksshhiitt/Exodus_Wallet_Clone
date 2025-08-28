@@ -1606,9 +1606,7 @@ function App() {
   }
 
    const getOutputTokens=async()=>{
-   
 	try {
-
     if(payToken=="ETH" || receiveToken=="ETH"){
 			document.querySelector(".details").innerText = "ETH is only for staking for now";
 			return;
@@ -1637,30 +1635,6 @@ function App() {
 	catch (err) {
       	console.error(err);
       	setinfo("Swap Error: " + (err.reason || err.message));
-    }
-  }
-
-  const activate=async()=>{
-    try {
-		const userAddress = await signer.getAddress();
-		const amount= await CContractSigner.balanceOf(userAddress);
-		const tx= await CContractSigner.approve(walletContract,amount);
-		setinfo("Activating...");
-		await tx.wait();
-		await walletContractSigner.activateRewards();
-		setinfo("Activated...");
-    } 
-    catch (err) {
-      let errorMessage = "An unexpected error occurred.";
-
-  			if (err.code === "CALL_EXCEPTION" && err.reason) {
-    			errorMessage = err.reason;
-  			} else if (err.info && err.info.error && err.info.error.message) {
-    			errorMessage = err.info.error.message;
-  			} else if (err.message) {
-    			errorMessage = err.message;
-  			}
-  			document.querySelector(".details").innerText = errorMessage;
     }
   }
 
@@ -2058,6 +2032,7 @@ function App() {
       <button className="main-claim-button" onClick={claim}>Claim Rewards</button>
       <br></br><br></br>
     </div>
+	// this function make the swap between two tokens a abd b and hten it eill be used to make teh transfer at he
   );
 
   return (

@@ -88,7 +88,7 @@ contract Wallet is Ownable, ReentrancyGuard {
 
     function fundsAvailableToWithdraw(address _userAddress, address _tokenAddress) public view returns(uint256){
         if (_tokenAddress==ETH_ADDRESS){
-            return ethBalance[_userAddress]-stakedAmount[msg.sender];
+            return ethBalance[_userAddress]-stakedAmount[_userAddress];
         }
         else return userHolding[_userAddress][_tokenAddress];
 
