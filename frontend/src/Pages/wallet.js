@@ -1604,7 +1604,7 @@ import {Coins, BarChart3, Layers } from "lucide-react";
       else if(e=="ETH"){
         const tx=await walletContractSigner.fundsAvailableToWithdraw(userAddress, tokenAddresses["ETH"]);
         setinfo("Your ETH balance: " +Math.floor(formatUnits(tx, 18) * 1e5) / 1e5);
-    }
+      }
     }
   
      const getOutputTokens=async()=>{
@@ -2028,18 +2028,9 @@ const renderTokenDropdown = (isOpen, setIsOpen, selectedToken, onSelect, type) =
 
   return (
   <div className="app-container">   
-      <div className="header">
-        <div className="logo">Wallet</div>
-         <div className="user-section">
-           <div className="notification-icon">🔔</div>
-           <div className="user-info">
-             <span>Connected</span>
-             <div style={{width: '20px', height: '20px', borderRadius: '50%', background: '#4ade80'}}></div>
-           </div>
-         </div>
-       </div>
 
      <div className="main-interface">
+
         <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
            <button 
             className={`interface-tab ${activeTab === 'Swap' ? 'active' : ''}`}

@@ -26,7 +26,8 @@ function App(){
 
     <Router>
       <Navbar />
-      <Routes>
+      <Routes path="/">\
+        <Route index element={<Wallet />} />
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/history" element={<History />} />
         <Route path="/willDecideLater" element={<DecideLater />} />
