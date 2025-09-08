@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { parseEther, formatEther } from 'ethers';
 import { parseUnits, formatUnits } from "ethers";
 import { useEffect } from 'react';
-import "../App.css";
+import "./wallet.css";
 import {Coins, BarChart3, Layers } from "lucide-react";
   
   

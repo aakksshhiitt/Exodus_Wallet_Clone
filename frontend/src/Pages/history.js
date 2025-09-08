@@ -2,40 +2,89 @@ import React, { useState, useEffect } from 'react';
 import './history.css';
 
 function History() {
+
   const tabs = [
-    'Swap Details',
+    'SwapDetails',
     'Staking',
     'Deposits',
-    'Withdrawals',
+    'Withdrawls',
     'Transfers',
     'Claims',
+    'NFTs'
   ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [data, setData] = useState({
-    'Swap Details': [],
+    SwapDetails: [],
     Staking: [],
     Deposits: [],
-    Withdrawals: [],
+    Withdrawls: [],
     Transfers: [],
     Claims: [],
+    NFTs:[]
   });
 
-  useEffect(() => {
-    // Placeholder for actual data fetching (e.g. queryFilter from Ethers.js)
-    setData({
-      'Swap Details': 
+  // useEffect(() => {
+  //   // Placeholder for actual data fetching (e.g. queryFilter from Ethers.js)
+  //   setData({
+  //     'Swap Details': 
+  //     [
+  //       { id: 1, from: 'Alice', to: 'Bob', amount: 100 }, 
+  //       { id: 1, from: 'Blice', to: 'Bob', amount: 100 }, 
+  //       { id: 1, from: 'Alice', to: 'Bob', amount: 100 }
+  //     ],
+  //     Staking: [{ id: 2, staker: 'Carol', amount: '50 ETH' }],
+  //     Deposits: [{ id: 3, user: 'Dave', amount: '0.5 BTC' }],
+  //     Withdrawls: [{ id: 4, user: 'Eve', amount: '200 USDT' }],
+  //     Transfers: [{ id: 5, sender: 'Frank', receiver: 'Grace', amount: 300 }],
+  //     Claims: [{ id: 6, claimer: 'Heidi', reward: '10 Token' }],
+  //     NFTs: [{ id: 6, claimer: 'Heidi', reward: '10 Token' }],
+  //   });
+  // }, []);
+
+
+const swapDetails=()=>{
+  setData({
+      SwapDetails: 
       [
-        { id: 1, from: 'Alice', to: 'Bob', amount: 100 }, 
-        { id: 1, from: 'Blice', to: 'Bob', amount: 100 }, 
-        { id: 1, from: 'Alice', to: 'Bob', amount: 100 }
+        { id: 1, from: 'Akshit', to: 'Bob', amount: "1 Ether" }, 
       ],
-      Staking: [{ id: 2, staker: 'Carol', amount: '50 ETH' }],
-      Deposits: [{ id: 3, user: 'Dave', amount: '0.5 BTC' }],
-      Withdrawals: [{ id: 4, user: 'Eve', amount: '200 USDT' }],
-      Transfers: [{ id: 5, sender: 'Frank', receiver: 'Grace', amount: 300 }],
-      Claims: [{ id: 6, claimer: 'Heidi', reward: '10 Token' }],
     });
-  }, []);
+}  
+
+const staking=()=>{
+  console.log("staking");
+}  
+
+const deposits=()=>{
+  console.log("deposits");
+}  
+
+const withdrawls=()=>{
+  console.log("Withdrawls");    
+}  
+
+const transfers=()=>{
+  console.log("Transfers");
+}  
+
+const claims=()=>{
+  console.log("Claims"); 
+}  
+
+const nfts=()=>{
+  console.log("NFTs");
+}  
+
+
+
+
+
+
+
+
+
+
+
 
   const renderTable = () => {
     const rows = data[activeTab] || [];
@@ -75,7 +124,30 @@ function History() {
           <button
             key={tab}
             className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => {
+              setActiveTab(tab)
+              if(tab=='SwapDetails'){
+                swapDetails();
+              }
+              else if(tab=='Staking'){
+                staking();
+              }
+              else if(tab=='Deposits'){
+                deposits();
+              }
+              else if(tab=='Withdrawls'){
+                withdrawls();
+              }
+              else if(tab=='Transfers'){
+                transfers();
+              }
+              else if(tab=='Claims'){
+                claims();
+              }
+              else if(tab=='NFTs'){
+                nfts();
+              }
+            }}
           >
             {tab}
           </button>
