@@ -7,6 +7,7 @@ import { parseUnits, formatUnits } from "ethers";
 import { useEffect } from 'react';
 import "./wallet.css";
 import {Coins, BarChart3, Layers } from "lucide-react";
+
   
   
   function Wallet() {
@@ -1547,9 +1548,10 @@ import {Coins, BarChart3, Layers } from "lucide-react";
       }
   
       try{
+
+
       // getting the ethereum accounts connected to the user wallet
         const accounts=await window.ethereum.request({method:'eth_accounts'}); 
-  
       // if it gives no account, request to open metamask is given
         if(accounts.length===0){
             await window.ethereum.request({method:'eth_requestAccounts'});
@@ -1576,9 +1578,10 @@ import {Coins, BarChart3, Layers } from "lucide-react";
         }
       }
       initializer();
-    })
+    });
   
      const handleSwapTokens = () => {
+
       const tempToken = payToken;
       const tempAmount = payAmount;
       setPayToken(receiveToken);
@@ -1643,7 +1646,9 @@ import {Coins, BarChart3, Layers } from "lucide-react";
     const swap=async()=>{
   
       try {
-  
+
+        const userAddress = await signer.getAddress();
+
       if(payToken=="ETH" || receiveToken=="ETH"){
         document.querySelector(".details").innerText = "ETH is only for staking for now";
         return;
@@ -1664,6 +1669,17 @@ import {Coins, BarChart3, Layers } from "lucide-react";
       document.querySelector(".details").innerText = "Swap Completed, check your balance in deposit section";
       // setinfo("available funds: " + tx);
       // formData.availableTokenAddress="";
+
+      await fetch("http://localhost:5000/api/swap", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            fromToken:inputToken,
+            toToken: outputToken,
+             amount: Number(amount)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1680,7 +1696,9 @@ import {Coins, BarChart3, Layers } from "lucide-react";
     }
   
     const deposit=async()=>{
-      try {
+     try {
+      // console.log(tokenAddresses[depositToken]);
+      const userAddress=await signer.getAddress();
       if(depositToken=="Select" || formData.depositAmount==""){
         document.querySelector(".details").innerText = "Please refresh and enter the details";
         return;
@@ -1692,19 +1710,53 @@ import {Coins, BarChart3, Layers } from "lucide-react";
         await tx.wait();
         setinfo("Deposited, check balance");
         formData.depositAmount="";
+
+        await fetch("http://localhost:5000/api/deposit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            tokenAddress: tokenAddresses[depositToken],
+             amount: Number(amount)
+          })
+        });
+
         return;
       }
   
       const amount=parseUnits(String(formData.depositAmount),18);
-      const tx= await AContractSigner.approve(walletContract, amount);
+      let contractSigner="";
+      if(tokenAddresses[depositToken]==tokenAddresses["TA"]){
+        contractSigner=AContractSigner;
+      }
+      if(tokenAddresses[depositToken]==tokenAddresses["TB"]){
+        contractSigner=BContractSigner;
+      }
+      else if(tokenAddresses[depositToken]==tokenAddresses["RT"]){
+        contractSigner=CContractSigner;
+      }
+      const tx= await contractSigner.approve(walletContract, amount);
       setinfo("Approving...");
       await tx.wait();
       setinfo("Approved...");
+      console.log(tokenAddresses[depositToken]);
+      console.log(amount)
       const tx2=await walletContractSigner.depositTokens(tokenAddresses[depositToken],amount);
       setinfo("Deposit Processing");
       await tx2.wait();
       setinfo("Deposited, check balance");
       formData.depositAmount="";
+
+
+      const response = await fetch("http://localhost:5000/api/deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userAddress: userAddress,     // from MetaMask
+          tokenAddress: tokenAddresses[depositToken],
+          amount: Number(amount)
+        })
+      });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1722,17 +1774,30 @@ import {Coins, BarChart3, Layers } from "lucide-react";
   
     const withdraw=async()=>{
       try {
-      if(tokenAddresses[depositToken]=="" || formData.depositAmount==""){
-        document.querySelector(".details").innerText = "Please refresh and enter the details";
-        return;
-      }
+
+        const userAddress=await signer.getAddress();
+
+        if(tokenAddresses[depositToken]=="" || formData.depositAmount==""){
+          document.querySelector(".details").innerText = "Please refresh and enter the details";
+          return;
+        }
   
-      const amount=parseUnits(String(formData.depositAmount),18);
-      const tx=await walletContractSigner.withdrawFunds(tokenAddresses[depositToken],amount);
-      setinfo("Processing");
-      await tx.wait();
-      setinfo("Withdrawl Successful...");
-      formData.depositAmount="";
+        const amount=parseUnits(String(formData.depositAmount),18);
+        const tx=await walletContractSigner.withdrawFunds(tokenAddresses[depositToken],amount);
+        setinfo("Processing");
+        await tx.wait();
+        setinfo("Withdrawl Successful...");
+        formData.depositAmount="";
+
+        await fetch("http://localhost:5000/api/withdrawl", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            tokenAddress: tokenAddresses[depositToken],
+             amount: Number(amount)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1758,12 +1823,25 @@ import {Coins, BarChart3, Layers } from "lucide-react";
         document.querySelector(".details").innerText = "Please refresh and enter the details";
         return;
       }
-  
+
+      const userAddress=await signer.getAddress();
       const amount=parseUnits(String(formData.withdrawAmount),18);
       const tx=await walletContractSigner.transferTokens(tokenAddresses[withdrawToken], formData.transferReceiverAddress, amount);
       setinfo("Processing");
       await tx.wait();
       setinfo("Transfer Completed, check balance");
+
+
+      await fetch("http://localhost:5000/api/transfer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            senderAddress: userAddress,     // from MetaMask
+            receiverAddress:formData.transferReceiverAddress,
+            tokenAddress: tokenAddresses[withdrawToken],
+             amount: Number(amount)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1781,7 +1859,7 @@ import {Coins, BarChart3, Layers } from "lucide-react";
   
     const stake=async()=>{
       try {
-  
+      const userAddress=await signer.getAddress();
       if(formData.stakeAmount==""){
         document.querySelector(".details").innerText = "Please refresh and enter the details";
         return;
@@ -1792,6 +1870,17 @@ import {Coins, BarChart3, Layers } from "lucide-react";
       setinfo("Processing");
       await tx.wait();
       setinfo("Funds Staked, check staking balance");
+
+      await fetch("http://localhost:5000/api/stake", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            tokenAddress:tokenAddresses["ETH"],
+            activity:"Amount Staked",
+             amount: Number(amount)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1831,10 +1920,30 @@ import {Coins, BarChart3, Layers } from "lucide-react";
   
     const unStake=async()=>{
       try {
+
+      const tx2=await walletContractSigner.showMyStakedAmount();
+      const stakedAmount = formatEther(tx2);
+      const userAddress=await signer.getAddress();
+
       const tx=await walletContractSigner.unstakeTokens();
       setinfo("Processing");
       await tx.wait();
       setinfo("Tokens Unstaked");
+
+
+      
+      
+      
+      await fetch("http://localhost:5000/api/stake", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            tokenAddress:tokenAddresses["ETH"],
+            activity:"Amount Unstaked",
+             amount: Number(stakedAmount)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";
@@ -1872,11 +1981,30 @@ import {Coins, BarChart3, Layers } from "lucide-react";
   
     const claim=async()=>{
       try {
-  
+
+
+      const tx2=await walletContractSigner.checkRewardEarnedTillNow();
+      const claimedRewards = formatEther(tx2);
+      const userAddress=await signer.getAddress();
+
       const tx1=await walletContractSigner.claimStakingRewards();
       setinfo("Claiming");
       await tx1.wait();
       setinfo("Claimed");
+
+
+      
+      
+
+      await fetch("http://localhost:5000/api/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userAddress: userAddress,     // from MetaMask
+            tokenAddress:tokenAddresses["RT"],
+             amount: Number(claimedRewards)
+          })
+        });
       } 
       catch (err) {
         let errorMessage = "An unexpected error occurred.";

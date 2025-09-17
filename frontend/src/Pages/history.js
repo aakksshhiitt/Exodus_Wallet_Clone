@@ -42,33 +42,81 @@ function History() {
   // }, []);
 
 
-const swapDetails=()=>{
+const swapDetails=async()=>{
+  const swapData = await fetch("http://localhost:5000/api/swap", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  // console.log(transferData);
+  const data = await swapData.json();
+  // console.log(data);
   setData({
-      SwapDetails: 
-      [
-        { id: 1, from: 'Akshit', to: 'Bob', amount: "1 Ether" }, 
-      ],
+      SwapDetails: data
+    }); 
+}  
+
+const staking=async()=>{
+  const stakeData = await fetch("http://localhost:5000/api/stake", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  // console.log(transferData);
+  const data = await stakeData.json();
+  // console.log(data);
+  setData({
+      Staking: data
+    }); 
+}  
+
+const deposits=async()=>{
+  const depositData = await fetch("http://localhost:5000/api/deposit", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  const data = await depositData.json();
+  console.log(data);
+  setData({
+      Deposits: data
     });
 }  
 
-const staking=()=>{
-  console.log("staking");
+const withdrawls=async()=>{
+  const withdrawlData = await fetch("http://localhost:5000/api/withdrawl", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  console.log(withdrawlData);
+  const data = await withdrawlData.json();
+  console.log(data);
+  setData({
+      Withdrawls: data
+    }); 
 }  
 
-const deposits=()=>{
-  console.log("deposits");
+const transfers=async()=>{
+  const transferData = await fetch("http://localhost:5000/api/transfer", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  // console.log(transferData);
+  const data = await transferData.json();
+  // console.log(data);
+  setData({
+      Transfers: data
+    }); 
 }  
 
-const withdrawls=()=>{
-  console.log("Withdrawls");    
-}  
-
-const transfers=()=>{
-  console.log("Transfers");
-}  
-
-const claims=()=>{
-  console.log("Claims"); 
+const claims=async()=>{
+  const claimData = await fetch("http://localhost:5000/api/claim", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+  });
+  // console.log(transferData);
+  const data = await claimData.json();
+  // console.log(data);
+  setData({
+      Claims: data
+    }); 
 }  
 
 const nfts=()=>{
