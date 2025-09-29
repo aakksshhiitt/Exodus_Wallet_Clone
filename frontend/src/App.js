@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Pages/nav";
 import Wallet from "./Pages/wallet";
 import History from "./Pages/history";
-import DecideLater from "./Pages/decideLater";
 
 
 
@@ -30,7 +29,6 @@ function App(){
         <Route index element={<Wallet />} />
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/history" element={<History />} />
-        <Route path="/willDecideLater" element={<DecideLater />} />
       </Routes>
     </Router>
   );

@@ -10,7 +10,6 @@ function History() {
     'Withdrawls',
     'Transfers',
     'Claims',
-    'NFTs'
   ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [data, setData] = useState({
@@ -19,8 +18,7 @@ function History() {
     Deposits: [],
     Withdrawls: [],
     Transfers: [],
-    Claims: [],
-    NFTs:[]
+    Claims: []
   });
 
   // useEffect(() => {
@@ -119,9 +117,6 @@ const claims=async()=>{
     }); 
 }  
 
-const nfts=()=>{
-  console.log("NFTs");
-}  
 
 
 
@@ -153,8 +148,8 @@ const nfts=()=>{
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
+          {rows.map((row, i) => (
+            <tr key={row.id} className="fade-in" style={{ animationDelay: `${i * 0.1}s`}}>
               {headers.map((col) => (
                 <td key={`${row.id}-${col}`}>{row[col]}</td>
               ))}
@@ -191,9 +186,6 @@ const nfts=()=>{
               }
               else if(tab=='Claims'){
                 claims();
-              }
-              else if(tab=='NFTs'){
-                nfts();
               }
             }}
           >

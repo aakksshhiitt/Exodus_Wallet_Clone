@@ -1,59 +1,74 @@
-body {
-
-          margin-top: 80px;
-   
-        }
-
+.tab-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
 .tabbed-tables-container {
-  font-family: Arial, sans-serif;
-  color: black;
-  padding: 16px;
+  padding: 20px;
+  margin-top: 80px; /* adjust based on navbar height */
+}
+
+.tab-table th {
+  background: #1e293b;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+}
+
+.tab-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1e293b;   /* dark gray (visible on white) */
+  font-size: 14px;
+}
+
+/* Hover effect */
+.tab-table tr:hover td {
+  background: #f1f5f9;
+}
+
+/* Row animation */
+.fade-in {
+  opacity: 0;
+  transform: translateY(-15px);
+  animation: slideDown 0.4s ease forwards;
 }
 
 .tabs {
   display: flex;
-  border-bottom: 2px solid #ccc;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.tab-button {
-  background: #f2f2f2;
+/* Individual tab buttons */
+.tab-btn {
+  padding: 10px 16px;
   border: none;
-  padding: 8px 16px;
-  margin-right: 4px;
+  border-radius: 8px;
+  background: #1e293b; /* dark navy */
+  color: #fff;
+  font-weight: 500;
   cursor: pointer;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 
-.tab-button:hover {
-  background: #e0e0e0;
+.tab-btn:hover {
+  background: #334155; /* lighter navy */
+  transform: translateY(-2px);
 }
 
-.tab-button.active {
-  background: #fff;
-  border: 2px solid #ccc;
-  border-bottom: none;
-  font-weight: bold;
+.tab-btn.active {
+  background: #2563eb; /* blue for active */
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
 }
 
-.table-container {
-  border: 2px solid #ccc;
-  padding: 16px;
+@keyframes slideDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
-.tab-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.tab-table th,
-.tab-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.tab-table th {
-  background: #f5f5f5;
-}        

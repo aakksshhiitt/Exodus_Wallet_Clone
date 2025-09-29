@@ -18,9 +18,6 @@ function Navbar() {
           <NavLink to="/history" className="nav-item">
             History
           </NavLink>
-          <NavLink to="/willdecidelater" className="nav-item">
-            Will Decide Later
-          </NavLink>
         </div>
 
         {/* Search */}
