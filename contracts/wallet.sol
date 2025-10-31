@@ -153,10 +153,4 @@ contract Wallet is Ownable, ReentrancyGuard {
         IERC20(TokenC).transferFrom(owner(),address(this),rewardAmount);
     }
 
-
-       // function to withdraw the accidental sent funds
-    function withdrawAllETH() external onlyOwner {
-        payable(owner()).transfer(address(this).balance);
-    }
-
 }
